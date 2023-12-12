@@ -29,7 +29,7 @@ class SafetyZone:
 
 
 class ResultViewer:    
-    def __init__(self, size = (3000, 3000),zoom = 16,path_result:str = "2023-1205-083923", wind = [1,2], deg=[0, 45, 90, 135, 180, 225, 270]) -> None:
+    def __init__(self, size = (3000, 3000),zoom = 16,path_result:str = "./4_Results/2023-1205-083923/", wind = [1,2], deg=[0, 45, 90, 135, 180, 225, 270]) -> None:
         if isinstance(wind, int):
             self.wind = np.arange(0, wind)
         elif isinstance(wind, list):
@@ -58,7 +58,7 @@ class ResultViewer:
         #実行
         self.image = self.get_image()
         self.draw = ImageDraw.Draw(self.image)
-        self.landings = self.get_landings(self.wind, self.deg, "./4_Results/2023-1205-083923/")
+        self.landings = self.get_landings(self.wind, self.deg, self.path)
     
     def get_image(self, path = PATH_MAP):
         """

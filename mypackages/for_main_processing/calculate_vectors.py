@@ -97,25 +97,19 @@ def Tn_align(time, altitude, airflow_align):
 
 
 def Ft_align(altitude, airflow_align):
-
     alpha = CV.alpha_airflow(airflow_align)
-    #alpha = CV.alpha(airflow_align)
 
     if airflow_align.ndim > 1:
         airflow_x = np.array([airflow_align[:, 0], np.zeros_like(altitude), np.zeros_like(altitude)]).T
-        direction_x = np.array([airflow_x[i] / norm(airflow_x, axis=1)[i] if norm(airflow_x, axis=1)[i] != 0 else np.array([0, 0, 0]) for i in range(len(airflow_x))])
-
-        Ft_align_x = np.array([CV.dp(altitude, airflow_align)[i] * S_BODY * CV.Ct(alpha)[i] * direction_x[i] for i in range(len(airflow_x))])
-
+        norm_airflow_x = norm(airflow_x, axis=1)
+        direction_x = np.where(norm_airflow_x[:, None] != 0, airflow_x / norm_airflow_x[:, None], np.array([0, 0, 0]))
+        Ft_align_x = CV.dp(altitude, airflow_align)[:, None] * S_BODY * CV.Ct(alpha)[:, None] * direction_x
     else:
         airflow_x = np.array([airflow_align[0], 0, 0])
-
         if norm(airflow_x) != 0:
-
             direction_x = airflow_x / norm(airflow_x)
         else:
             direction_x = np.array([0, 0, 0])
-
         Ft_align_x = CV.dp(altitude, airflow_align) * S_BODY * CV.Ct(alpha) * direction_x
 
     return Ft_align_x
