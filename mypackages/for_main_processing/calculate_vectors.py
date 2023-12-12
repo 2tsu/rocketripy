@@ -68,28 +68,22 @@ D_BODY = Constants.rocket()['Body_Diameter']
 S_BODY = np.pi * (D_BODY / 2)**2
 
 def Fn_align(altitude, airflow_align):
-
     alpha = CV.alpha_airflow(airflow_align)
-    #alpha = CV.alpha(airflow_align)
     ex = np.array([1, 0, 0])
     airflow_yz = cross(cross(ex, airflow_align), ex)
 
     if airflow_align.ndim > 1:
-
-        direction_yz = np.array([airflow_yz[i] / norm(airflow_yz, axis=1)[i] if norm(airflow_yz, axis=1)[i] != 0 else np.array([0, 0, 0]) for i in range(len(airflow_yz))])
-        Fn_align_yz = np.array([CV.dp(altitude, airflow_align)[i] * S_BODY * CV.Cn(alpha)[i] * direction_yz[i] for i in range(len(airflow_yz))])
-
+        norm_airflow_yz = norm(airflow_yz, axis=1)
+        direction_yz = np.where(norm_airflow_yz[:, None] != 0, airflow_yz / norm_airflow_yz[:, None], np.array([0, 0, 0]))
+        Fn_align_yz = CV.dp(altitude, airflow_align)[:, None] * S_BODY * CV.Cn(alpha)[:, None] * direction_yz
     else:
-
         if norm(airflow_yz) != 0:
             direction_yz = airflow_yz / norm(airflow_yz)
         else:
             direction_yz = np.array([0, 0, 0])
-
         Fn_align_yz = CV.dp(altitude, airflow_align) * S_BODY * CV.Cn(alpha) * direction_yz
 
     return Fn_align_yz
-
 def Tn_align(time, altitude, airflow_align):
 
     alpha = CV.alpha_airflow(airflow_align)
