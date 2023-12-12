@@ -27,3 +27,12 @@ def create_graph_template():
     線の太さ、色
     """
     raise NotImplementedError
+
+def create_3dgraph():
+    """
+    4_Results/...から指定した風速、角度のエクセルファイルを読み取り、
+    指定したx,y,z軸のグラフを作成し、表示する。
+    以下の工夫などを自由にしてください。
+    落下モード事に色を分けて見やすく。
+    """
+    raise NotImplementedError
