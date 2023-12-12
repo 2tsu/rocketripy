@@ -19,10 +19,10 @@ PATH_RESULTS_HISTORY = PATH_RESULTS+"/Histories/output.xlsx"
 PATH_RESULTS_SUMMARY = PATH_RESULTS+"/Summaries_History/summary.csv"
 print(PATH_RESULTS_SUMMARY)
 
-def main():
+def main(wind_list, ang_list):
     #微分方程式を解く
-    for wind in [1,2]:
-        for ang in [0, 45 ,90, 135, 180, 225, 270]:
+    for wind in wind_list:
+        for ang in ang_list:
             out = solve_ode_full_output.solve_all(wind, ang)
             #解いた結果をcsv, xcelに保存
             path_results_history = PATH_RESULTS+"/Histories/wind_"+str(wind)+"_ang_"+str(ang)+".xlsx"
@@ -35,14 +35,19 @@ def post():
     image.draw_grid()
     image.draw_landing()
     image.save("test_name")
-    pass
 
 
 
 
 if __name__ == "__main__":
     pre()
+    wind  = [0 ,1, 2]
+    ang = [0, 45, 90, 135, 180, 225, 270, 315]
+    main(wind, ang) 
     
-    main()
-    
-    post()
+    post(path_result = PATH_RESULTS, wind = wind, ang = ang)
+
+
+"""
+風8回、角度8回で計64回の計算を行うと928.929秒かかった。
+"""
