@@ -13,8 +13,12 @@ from mypackages.for_pre_processing import Constants
 
 
 
-PATH_MAP = "./2_Map/noshiro.png"
+PATH_MAP_NOSHIRO = "./2_Map/noshiro.png"
+PATH_MAP_OSHIMA = "./2_Map/oshima.png"
+PATH_MAP = PATH_MAP_NOSHIRO
+
 LAUNCHER_LON, LAUNCHER_LAT = Constants.launcher()["Longitude"], Constants.launcher()["Latitude"]
+
 
 
 class SafetyZone:
@@ -29,7 +33,7 @@ class SafetyZone:
 
 
 class ResultViewer:    
-    def __init__(self, size = (3000, 3000),zoom = 16,path_result:str = "./4_Results/2023-1205-083923/", wind = [1,2], deg=[0, 45, 90, 135, 180, 225, 270]) -> None:
+    def __init__(self, path , wind, deg ,size = (3000, 3000),zoom = 16) -> None:
         if isinstance(wind, int):
             self.wind = np.arange(0, wind)
         elif isinstance(wind, list):
@@ -44,7 +48,8 @@ class ResultViewer:
         else:
             raise TypeError("deg must be int or list.")
         
-        self.path = path_result
+        #path format: ./4_Results/2023-1205-083923
+        self.path = path
         
         #座標変換に使用するクラス変数
         self.center = (LAUNCHER_LON, LAUNCHER_LAT)
@@ -81,7 +86,7 @@ class ResultViewer:
         for w in wind:
             wind_landings = []
             for a in angle:
-                loc = path+ "Summaries_History/wind_"+str(w)+"_ang_"+str(a)+".csv"
+                loc = path+ "/Summaries_History/wind_"+str(w)+"_ang_"+str(a)+".csv"
                 df = pd.read_csv(loc)
                 lonlat = list(zip(df["Landing_longitude"], df["Landing_latitude"]))  # Create an array of tuples
                 wind_landings.extend(lonlat)  # Extend the wind_landings array with the tuples

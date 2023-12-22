@@ -2,50 +2,47 @@ from mypackages.for_main_processing import solve_ode_full_output
 from mypackages import for_pre_processing
 from mypackages.for_post_processing import output_to_excel
 from mypackages.for_post_processing.plot_drop_distribution import ResultViewer
-import csv
+import os
+import multiprocessing
+from itertools import product
 
 
-#結果用ディレクトリを作成
-def pre():
-    """
-    実行時間 1.862 seconds
-    """
-    for_pre_processing.Results.make_dirs()
-    for_pre_processing.Setting.save()
+class Simulator:
+    def __init__(self, wind_list, ang_list):
+        self.wind_list = wind_list
+        self.ang_list = ang_list
+        self.path = for_pre_processing.Setting.path()['Results']
+        self.pool = multiprocessing.Pool()
 
+    def pre(self):
+        for_pre_processing.Results.make_dirs()
+        for_pre_processing.Setting.save()
 
-PATH_RESULTS = for_pre_processing.Setting.path()['Results']
-PATH_RESULTS_HISTORY = PATH_RESULTS+"/Histories/output.xlsx"
-PATH_RESULTS_SUMMARY = PATH_RESULTS+"/Summaries_History/summary.csv"
-print(PATH_RESULTS_SUMMARY)
+    def post(self):
+        image = ResultViewer(self.path, self.wind_list, self.ang_list)
+        image.draw_grid()
+        image.draw_landing()
+        image.save("test_name")
 
-def main(wind_list, ang_list):
-    #微分方程式を解く
-    for wind in wind_list:
-        for ang in ang_list:
-            out = solve_ode_full_output.solve_all(wind, ang)
-            #解いた結果をcsv, xcelに保存
-            path_results_history = PATH_RESULTS+"/Histories/wind_"+str(wind)+"_ang_"+str(ang)+".xlsx"
-            path_results_summary = PATH_RESULTS+"/Summaries_History/wind_"+str(wind)+"_ang_"+str(ang)+".csv"
-            output_to_excel.create_history_excel(out, path_results_history)
-            output_to_excel.create_summary_csv(out, path_results_summary)
+    def run_single_simulation(self, wind_ang):
+        wind, ang = wind_ang
+        out = solve_ode_full_output.solve_all(wind, ang)
+        path_results_history = os.path.join(self.path, f"Histories/wind_{wind}_ang_{ang}.xlsx")
+        path_results_summary = os.path.join(self.path, f"Summaries_History/wind_{wind}_ang_{ang}.csv")
+        output_to_excel.create_history_excel(out, path_results_history)
+        output_to_excel.create_summary_csv(out, path_results_summary)
 
-def post():
-    image = ResultViewer(path_result=PATH_RESULTS, zoom = 16)
-    image.draw_grid()
-    image.draw_landing()
-    image.save("test_name")
-
-
-
+    def run_simulation(self):
+        self.pre()
+        wind_ang_combinations = product(self.wind_list, self.ang_list)
+        self.pool.map(self.run_single_simulation, wind_ang_combinations)
+        self.post()
 
 if __name__ == "__main__":
-    pre()
-    wind  = [0 ,1, 2]
-    ang = [0, 45, 90, 135, 180, 225, 270, 315]
-    main(wind, ang) 
-    
-    post(path_result = PATH_RESULTS, wind = wind, ang = ang)
+    wind  = [1]
+    ang = [0, 45, 90, 135]
+    sim = Simulator(wind, ang)
+    sim.run_simulation()
 
 
 """
