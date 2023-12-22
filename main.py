@@ -3,16 +3,13 @@ from mypackages import for_pre_processing
 from mypackages.for_post_processing import output_to_excel
 from mypackages.for_post_processing.plot_drop_distribution import ResultViewer
 import os
-import multiprocessing
 from itertools import product
-
 
 class Simulator:
     def __init__(self, wind_list, ang_list):
         self.wind_list = wind_list
         self.ang_list = ang_list
         self.path = for_pre_processing.Setting.path()['Results']
-        self.pool = multiprocessing.Pool()
 
     def pre(self):
         for_pre_processing.Results.make_dirs()
@@ -34,10 +31,9 @@ class Simulator:
 
     def run_simulation(self):
         self.pre()
-        wind_ang_combinations = product(self.wind_list, self.ang_list)
-        self.pool.map(self.run_single_simulation, wind_ang_combinations)
+        for i in product(self.wind_list, self.ang_list):
+            self.run_single_simulation(i)
         self.post()
-
 if __name__ == "__main__":
     wind  = [1]
     ang = [0, 45, 90, 135]
